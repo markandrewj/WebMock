@@ -11,11 +11,11 @@ internal class WebMockProtocol: NSURLProtocol {
     private static var stubs: [Stub] = []
 
     static func startWithStubs(stubs: [Stub]) {
-        self.stubs = stubs
+        WebMockProtocol.stubs = stubs
     }
     
     static func removeAllStubs() {
-        self.stubs = []
+        WebMockProtocol.stubs = []
     }
     
     override internal func startLoading() {

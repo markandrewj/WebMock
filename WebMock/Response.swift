@@ -40,28 +40,21 @@ public struct Response {
     }
     
     public init(statusCode: Int = 200, headerFields: [String:String] = [:], json: AnyObject) {
-        do {
-            let data = try NSJSONSerialization.dataWithJSONObject(json,
+        
+        let data = try! NSJSONSerialization.dataWithJSONObject(json,
                                                                   options: NSJSONWritingOptions())
-            
-            result = .Success(statusCode: statusCode,
+        result = .Success(statusCode: statusCode,
                               headerFields: headerFields,
                               response: data)
-        } catch {
-            result = .Failure(error as NSError)
-        }
+        
     }
     
     public init(statusCode: Int = 200, headerFields: [String:String] = [:], fileURL: String) {
         
-        do {
-            let data = try NSData(contentsOfFile: fileURL, options: NSDataReadingOptions())
+        let data = try! NSData(contentsOfFile: fileURL, options: NSDataReadingOptions())
             
-            result = .Success(statusCode: statusCode,
+        result = .Success(statusCode: statusCode,
                               headerFields: headerFields,
                               response: data)
-        } catch {
-            result = .Failure(error as NSError)
-        }
     }
 }

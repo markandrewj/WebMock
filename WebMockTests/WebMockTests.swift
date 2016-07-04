@@ -17,29 +17,18 @@ class WebMockTests: XCTestCase {
         WebMock.removeAllStubs()
     }
     
-    func testStubbedRequest() {
+    func testStubbedRequestUsingDefaultSessionConfiguration() {
         
         let expectation = expectationWithDescription(#function)
 
-        // stub request
-        let json = ["testKey": "testValue"]
-        let response = Response(json: json)
-        let URL = NSURL(string: "https://www.google.com")!
-        let stub = Stub(URL: URL, response: response)
+        testStubbedRequest(expectation, usingEphemeralSessionConfiguration: false)
+    }
+    
+    func testStubbedRequestUsingEphemeralSessionConfiguration() {
         
-        WebMock.startWithStubs([stub])
+        let expectation = expectationWithDescription(#function)
         
-        // test request response
-        self.fetch(URL, completion: { (data, response, error) in
-            
-            let expectedJson = try! NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions()) as! [String: String]
-            XCTAssertEqual(json, expectedJson)
-            expectation.fulfill()
-        })
-        
-        waitForExpectationsWithTimeout(1) { error in
-            XCTAssertNil(error)
-        }
+        testStubbedRequest(expectation, usingEphemeralSessionConfiguration: true)
     }
     
     func testStubbedFailureRequest() {
@@ -70,6 +59,8 @@ class WebMockTests: XCTestCase {
     
     func testNotStubbedRequest() {
         
+        WebMockProtocol.removeAllStubs()
+        
         let expectation = expectationWithDescription(#function)
         let URL = NSURL(string: "https://www.google.com")!
         
@@ -84,9 +75,41 @@ class WebMockTests: XCTestCase {
         }
     }
     
-    func fetch(URL: NSURL, completion: (NSData?, NSURLResponse?, NSError?) -> Void) {
+    func testStubbedRequest(expectation: XCTestExpectation,
+                                    usingEphemeralSessionConfiguration: Bool) {
         
-        let configuration = NSURLSessionConfiguration.webmockDefaultSessionConfiguration()
+        // stub request
+        let json = ["testKey": "testValue"]
+        let response = Response(json: json)
+        let URL = NSURL(string: "https://www.google.com")!
+        let stub = Stub(URL: URL, response: response)
+        
+        WebMock.startWithStubs([stub])
+        
+        // test request response
+        self.fetch(URL, usingEphemeralSessionConfiguration: usingEphemeralSessionConfiguration,
+                   completion: { (data, response, error) in
+            
+            let expectedJson = try! NSJSONSerialization.JSONObjectWithData(data!,
+                options: NSJSONReadingOptions()) as! [String: String]
+            XCTAssertEqual(json, expectedJson)
+            expectation.fulfill()
+        })
+        
+        waitForExpectationsWithTimeout(1) { error in
+            XCTAssertNil(error)
+        }
+    }
+    
+    private func fetch(URL: NSURL, usingEphemeralSessionConfiguration: Bool = false,
+                       completion: (NSData?, NSURLResponse?, NSError?) -> Void) {
+        
+        var configuration: NSURLSessionConfiguration = .webmockDefaultSessionConfiguration()
+        
+        if usingEphemeralSessionConfiguration {
+            configuration = .webmockEphemeralSessionConfiguration()
+        }
+        
         let session = NSURLSession(configuration: configuration)
         
         session.dataTaskWithURL(URL) { data, response, error in
