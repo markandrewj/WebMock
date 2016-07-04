@@ -1,6 +1,6 @@
 # Webmock
 
-HTTP/HTTPS requests stubbing for iOS and OS X. It works with NSURLSession, AFNetworking, Alamofire or any networking framework that use Cocoa's URL Loading System. 
+HTTP/HTTPS requests stubbing for iOS and macOS. It works with NSURLSession, AFNetworking, Alamofire or any networking framework that use Cocoa's URL Loading System.
 
 ## Features
 * Stub HTTP and HTTPS requests.
@@ -12,6 +12,14 @@ HTTP/HTTPS requests stubbing for iOS and OS X. It works with NSURLSession, AFNet
 
 ## Usage
 
+WebMock requires using session configuration's replacements instead of default ones.
+
+```swift
+let defaultConfiguration = NSURLSessionConfiguration.webmockDefaultSessionConfiguration()
+
+let ephemeralConfiguration = NSURLSessionConfiguration.webmockEphemeralSessionConfiguration()
+```
+
 ###Stub requests with NSData
 
 ```swift
@@ -20,19 +28,19 @@ let response = Response(data: data)
 
 let URL = NSURL(string: "https://www.google.com")!
 let stub = Stub(method: .GET, URL: URL, response: response)
-        
+
 WebMock.startWithStubs([stub])
 ```
 
 ###Stub requests with a JSON object
 
 ```swift
-let json = ["testKey": "testValue"] 
+let json = ["testKey": "testValue"]
 let response = Response(json: json)
-        
+
 let URL = NSURL(string: "https://www.google.com")!
 let stub = Stub(method: .GET, URL: URL, response: response)
-        
+
 WebMock.startWithStubs([stub])
 ```
 
@@ -41,10 +49,10 @@ WebMock.startWithStubs([stub])
 ```swift
 let fileURL = bundle.pathForResource("test", ofType: "json")!
 let response = Response(fileURL: fileURL)
-        
+
 let URL = NSURL(string: "https://www.google.com")!
 let stub = Stub(method: .GET, URL: URL, response: response)
-        
+
 WebMock.startWithStubs([stub])
 ```
 
@@ -55,13 +63,13 @@ let error = NSError(domain: NSInternalInconsistencyException,
                             code: 0,
                             userInfo: nil)        
 let response = Response(error: error)
-        
+
 let URL = NSURL(string: "https://www.google.com")!
 let stub = Stub(method: .GET, URL: URL, response: response)
-        
+
 WebMock.startWithStubs([stub])
 ```
-You can additionaly define response's header fields and http method. 
+You can additionaly define response's header fields and http method.
 
 ## Installation
 

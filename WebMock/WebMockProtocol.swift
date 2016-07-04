@@ -6,12 +6,11 @@
 //  Copyright © 2016 wojteklu. All rights reserved.
 //
 
-class WebMockProtocol: NSURLProtocol {
+internal class WebMockProtocol: NSURLProtocol {
     
+    private static var stubs: [Stub] = []
+
     static func startWithStubs(stubs: [Stub]) {
-        
-        NSURLSessionConfiguration.swizzleSessionConfiguration()
-                
         self.stubs = stubs
     }
     
@@ -19,35 +18,28 @@ class WebMockProtocol: NSURLProtocol {
         self.stubs = []
     }
     
-    private static var stubs: [Stub] = []
-
-    private enum PropertyKeys {
-        static let HandledByProxyURLProtocol = "HandledByProxyURLProtocol"
-    }
-    
-    private lazy var session: NSURLSession = {
-        let configuration: NSURLSessionConfiguration = {
-            let configuration = NSURLSessionConfiguration.ephemeralSessionConfiguration()
-            return configuration
-        }()
+    override internal func startLoading() {
         
-        let session = NSURLSession(configuration: configuration, delegate: self, delegateQueue: nil)
-        
-        return session
-    }()
-    private var activeTask: NSURLSessionTask?
-    
-    override internal class func canInitWithRequest(request: NSURLRequest) -> Bool {
-        if NSURLProtocol.propertyForKey(PropertyKeys.HandledByProxyURLProtocol, inRequest: request) != nil {
-            return false
+        if let stub = WebMockProtocol.stubs.find({$0.match(request)}) {
+            startLoadingStub(stub)
+            return
         }
         
-        return true
+        let error = NSError(domain: NSInternalInconsistencyException,
+                            code: 0,
+                            userInfo: [NSLocalizedDescriptionKey: "Handling request without a matching stub."])
+        client?.URLProtocol(self, didFailWithError: error)
+    }
+    
+    override internal class func canInitWithRequest(request:NSURLRequest) -> Bool {
+        return WebMockProtocol.stubs.find({$0.match(request)}) != nil
     }
     
     override internal class func canonicalRequestForRequest(request: NSURLRequest) -> NSURLRequest {
         return request
     }
+    
+    override internal func stopLoading() {}
     
     private func startLoadingStub(stub: Stub) {
         
@@ -78,36 +70,4 @@ class WebMockProtocol: NSURLProtocol {
         }
     }
     
-    override internal func startLoading() {
-        
-        if let stub = WebMockProtocol.stubs.find({$0.match(request)}) {
-            startLoadingStub(stub)
-            return
-        }
-        
-        let mutableRequest = NSMutableURLRequest(URL: request.URL!)
-        NSURLProtocol.setProperty(true, forKey: PropertyKeys.HandledByProxyURLProtocol, inRequest: mutableRequest)
-        
-        activeTask = session.dataTaskWithRequest(mutableRequest)
-        activeTask?.resume()
-    }
-    
-    override internal func stopLoading() {
-        activeTask?.cancel()
-    }
-}
-
-extension WebMockProtocol: NSURLSessionDelegate {
-    
-    func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
-        client?.URLProtocol(self, didLoadData: data)
-    }
-    
-    func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
-        if let response = task.response {
-            client?.URLProtocol(self, didReceiveResponse: response, cacheStoragePolicy: .NotAllowed)
-        }
-        
-        client?.URLProtocolDidFinishLoading(self)
-    }
 }

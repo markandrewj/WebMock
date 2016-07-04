@@ -86,7 +86,7 @@ class WebMockTests: XCTestCase {
     
     func fetch(URL: NSURL, completion: (NSData?, NSURLResponse?, NSError?) -> Void) {
         
-        let configuration = NSURLSessionConfiguration.defaultSessionConfiguration()
+        let configuration = NSURLSessionConfiguration.webmockDefaultSessionConfiguration()
         let session = NSURLSession(configuration: configuration)
         
         session.dataTaskWithURL(URL) { data, response, error in

@@ -8,32 +8,17 @@
 
 import Foundation
 
+public extension NSURLSessionConfiguration {
 
-var token: dispatch_once_t = 0
-
-extension NSURLSessionConfiguration {
-
-    class func webmockDefaultSessionConfiguration() -> NSURLSessionConfiguration {
-        let configuration = webmockDefaultSessionConfiguration()
+    public class func webmockDefaultSessionConfiguration() -> NSURLSessionConfiguration {
+        let configuration = NSURLSessionConfiguration.defaultSessionConfiguration()
         configuration.protocolClasses = [WebMockProtocol.self] as [AnyClass] + configuration.protocolClasses!
         return configuration
     }
     
-    class func webmockEphemeralSessionConfiguration() -> NSURLSessionConfiguration {
-        let configuration = webmockEphemeralSessionConfiguration()
+    public class func webmockEphemeralSessionConfiguration() -> NSURLSessionConfiguration {
+        let configuration = NSURLSessionConfiguration.ephemeralSessionConfiguration()
         configuration.protocolClasses = [WebMockProtocol.self] as [AnyClass] + configuration.protocolClasses!
         return configuration
-    }
-    
-    class func swizzleSessionConfiguration() {
-        dispatch_once(&token) {
-            let defaultSessionConfiguration = class_getClassMethod(self, #selector(NSURLSessionConfiguration.defaultSessionConfiguration))
-            let webmockDefaultSessionConfiguration = class_getClassMethod(self, #selector(NSURLSessionConfiguration.webmockDefaultSessionConfiguration))
-            method_exchangeImplementations(defaultSessionConfiguration, webmockDefaultSessionConfiguration)
-            
-            let ephemeralSessionConfiguration = class_getClassMethod(self, #selector(NSURLSessionConfiguration.ephemeralSessionConfiguration))
-            let webmockEphemeralSessionConfiguration = class_getClassMethod(self, #selector(NSURLSessionConfiguration.webmockEphemeralSessionConfiguration))
-            method_exchangeImplementations(ephemeralSessionConfiguration, webmockEphemeralSessionConfiguration)
-        }
     }
 }
