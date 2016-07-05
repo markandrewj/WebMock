@@ -4,3 +4,6 @@ language: objective-c
 xcode_project: WebMock.xcodeproj
 xcode_scheme: WebMock
 xcode_sdk: iphonesimulator
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
