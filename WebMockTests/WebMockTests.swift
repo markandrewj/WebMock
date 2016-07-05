@@ -57,24 +57,6 @@ class WebMockTests: XCTestCase {
         }
     }
     
-    func testNotStubbedRequest() {
-        
-        WebMockProtocol.removeAllStubs()
-        
-        let expectation = expectationWithDescription(#function)
-        let URL = NSURL(string: "https://www.google.com")!
-        
-        // test request response
-        self.fetch(URL, completion: { (data, response, error) in
-            XCTAssertNil(error)
-            expectation.fulfill()
-        })
-        
-        waitForExpectationsWithTimeout(1) { error in
-            XCTAssertNil(error)
-        }
-    }
-    
     func testStubbedRequest(expectation: XCTestExpectation,
                                     usingEphemeralSessionConfiguration: Bool) {
         
