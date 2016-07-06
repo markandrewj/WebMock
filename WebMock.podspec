@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'WebMock'
-  s.version = '1.0'
+  s.version = '1.1'
   s.license = 'MIT'
   s.summary = 'HTTP stubbing for iOS and Mac OS X'
   s.homepage = 'https://github.com/wojteklu/WebMock'

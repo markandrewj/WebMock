@@ -641,6 +641,7 @@
 				2EC563771CCAC64800DFF379 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2EC5637B1CCAC64800DFF379 /* Build configuration list for PBXNativeTarget "WebMock MacTests" */ = {
 			isa = XCConfigurationList;
@@ -649,6 +650,7 @@
 				2EC563791CCAC64800DFF379 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
